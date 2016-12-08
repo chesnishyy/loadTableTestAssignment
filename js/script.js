@@ -11,24 +11,6 @@
     let pageIndex = 1;
     let url = apiAdress + pageIndex;
 
-
-    request.open("GET", url, true);
-    request.send();
-    request.onload = () => {
-        if(request.readyState != 4) return;
-            if(request.status == 200){
-
-                let data = JSON.parse(request.responseText).items;
-                let newData = data.map( item => [item.id, item.full_name, item.owner.login, item.language, item.forks, item.score]);
-                loading.classList.add('hide');
-                table.classList.remove('hide');
-                createTable(newData);
-            }
-            else {
-                handleError(request.statusText);
-            }
-    }
-
     let createTable = (data) => {
         let tbody = document.createElement('tbody');
         table.appendChild(tbody);
@@ -44,6 +26,29 @@
         });
         wrapper.appendChild(table);
     }
+
+    let loadData = (url, successCallback) =>{
+        request.open("GET", url, true);
+        request.send();
+        request.onload = () => {
+            if(request.readyState != 4) return;
+            if(request.status == 200){
+
+                let data = JSON.parse(request.responseText).items;
+                let newData = data.map( item => [item.id, item.full_name, item.owner.login, item.language, item.forks, item.score]);
+                loading.classList.add('hide');
+                table.classList.remove('hide');
+                createTable(newData);
+                if (successCallback){
+                    successCallback();
+                }
+            }
+            else {
+                handleError(request.statusText);
+            }
+        }
+    }
+    loadData(url);
 
     let handleError = (message) => alert("Error: " + message);
     let thead = document.getElementById('table-head');
@@ -82,27 +87,14 @@
 
         let nextUrl = adress + (index + 1);
 
-        let request = new XMLHttpRequest();
-        request.open("GET", nextUrl, true);
-        request.send();
-        request.onload = () => {
-            if(request.readyState != 4) return;
-            if(request.status == 200){
-                let data = JSON.parse(request.responseText).items;
-                let newData = data.map( item => [item.id, item.full_name, item.owner.login, item.language, item.forks, item.score]);
-                let tbody = document.getElementsByTagName('tbody')[0];
-                pageIndex++;
-                url = nextUrl;
-                page.innerHTML = '-' + pageIndex + '-';
-                table.removeChild(tbody);
-                loading.classList.add('hide');
-                createTable(newData);
+        loadData(nextUrl, ()=>{
+            pageIndex++;
+            url = nextUrl;
+            page.innerHTML = '-' + pageIndex + '-';
+            let tbody = document.getElementsByTagName('tbody')[0];
+            table.removeChild(tbody);
+        });
 
-            }
-            else {
-                handleError(request.statusText);
-            }
-        }
     }
 
     let loadPrev = (adress, index) => {
@@ -113,26 +105,13 @@
         }
         let prevUrl = adress + (index - 1);
 
-        let request = new XMLHttpRequest();
-        request.open("GET", prevUrl, true);
-        request.send();
-        request.onload = () => {
-            if(request.readyState != 4) return;
-            if(request.status == 200){
-                let data = JSON.parse(request.responseText).items;
-                let newData = data.map( item => [item.id, item.full_name, item.owner.login, item.language, item.forks, item.score]);
-                let tbody = document.getElementsByTagName('tbody')[0];
-                pageIndex--;
-                url = prevUrl;
-                page.innerHTML = '-' + pageIndex + '-';
-                table.removeChild(tbody);
-                loading.classList.add('hide');
-                createTable(newData);
-            }
-            else {
-                handleError(request.statusText);
-            }
-        }
+        loadData(prevUrl, ()=>{
+            pageIndex--;
+            url = prevUrl;
+            page.innerHTML = '-' + pageIndex + '-';
+            let tbody = document.getElementsByTagName('tbody')[0];
+            table.removeChild(tbody);
+        });
     }
     let prev = document.getElementsByClassName('pagination')[0].children[0];
     let next = document.getElementsByClassName('pagination')[0].children[2];
