@@ -11,6 +11,7 @@
     let pageIndex = 1;
     let url = apiAdress + pageIndex;
 
+
     request.open("GET", url, true);
     request.send();
     request.onload = () => {
@@ -92,7 +93,7 @@
                 let tbody = document.getElementsByTagName('tbody')[0];
                 pageIndex++;
                 url = nextUrl;
-                page.innerHTML = pageIndex;
+                page.innerHTML = '-' + pageIndex + '-';
                 table.removeChild(tbody);
                 loading.classList.add('hide');
                 createTable(newData);
@@ -123,7 +124,7 @@
                 let tbody = document.getElementsByTagName('tbody')[0];
                 pageIndex--;
                 url = prevUrl;
-                page.innerHTML = pageIndex;
+                page.innerHTML = '-' + pageIndex + '-';
                 table.removeChild(tbody);
                 loading.classList.add('hide');
                 createTable(newData);
@@ -135,7 +136,7 @@
     }
     let prev = document.getElementsByClassName('pagination')[0].children[0];
     let next = document.getElementsByClassName('pagination')[0].children[2];
-    let page = document.getElementsByClassName('pagination')[0].children[1].children[0];
+    let page = document.getElementsByClassName('pagination')[0].children[1];
 
     next.addEventListener('click', () => {
         loading.classList.remove('hide');
